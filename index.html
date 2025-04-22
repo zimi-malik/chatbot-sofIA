@@ -185,16 +185,7 @@
       }
     });
 
-    function formatarTextoCidades(texto) {
-  const destinos = ['lisboa', 'sintra', 'braga', 'nazaré', 'santarém', 'faro'];
 
-  destinos.forEach(destino => {
-    const regex = new RegExp(`\\b(${destino})\\b`, 'gi');
-    texto = texto.replace(regex, '<strong>$1</strong>');
-  });
-
-  return texto;
-}
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const msg = input.value.trim();
@@ -221,8 +212,8 @@
         chat.removeChild(typing);
 
         const respostaTexto = json.resposta || '[Erro ao responder]';
-const respostaFormatada = formatarTextoCidades(respostaTexto);
-adicionarMsg(respostaFormatada, 'bot');
+adicionarMsg(respostaTexto, 'bot');
+
         historico.push({ role: 'assistant', content: respostaTexto });
       } catch (err) {
         chat.removeChild(typing);
