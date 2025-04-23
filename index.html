@@ -2,127 +2,385 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SofIA - Assistente da LusoTravels</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
   <style>
-    body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    :root {
+      /* Modern Color Palette */
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --primary-light: #60a5fa;
+      --secondary: #0f172a;
+      --light-bg: #f8fafc;
+      --gray-light: #e2e8f0;
+      --gray-medium: #94a3b8;
+      --text-dark: #1e293b;
+      --text-light: #f8fafc;
+      
+      /* Spacing Variables */
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 16px;
+      --space-lg: 24px;
+      --space-xl: 32px;
+      
+      /* Border Radius */
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-full: 9999px;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--light-bg);
+      color: var(--text-dark);
+      line-height: 1.5;
+    }
 
     #widget-button {
       position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #38bdf8;
-      color: white;
+      bottom: var(--space-lg);
+      right: var(--space-lg);
+      background: var(--primary);
+      color: var(--text-light);
       border: none;
-      border-radius: 50%;
+      border-radius: var(--radius-full);
       width: 60px;
       height: 60px;
-      font-size: 30px;
+      font-size: 24px;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 8px 24px rgba(37, 99, 235, 0.25);
       z-index: 1000;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    #widget-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 28px rgba(37, 99, 235, 0.3);
+      background: var(--primary-dark);
+    }
+    
+    #widget-button.open {
+      transform: rotate(90deg);
     }
 
     #chat-container {
       display: none;
       flex-direction: column;
-      width: 350px;
-      height: 500px;
+      width: 380px;
+      height: 560px;
       position: fixed;
-      bottom: 90px;
-      right: 20px;
+      bottom: calc(var(--space-lg) + 75px);
+      right: var(--space-lg);
       background: white;
-      border-radius: 16px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.1);
       overflow: hidden;
       z-index: 999;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    #chat-container.active {
+      display: flex;
+      opacity: 1;
+      transform: translateY(0);
     }
 
     #chat-header {
-      background: #0f172a;
+      background: var(--secondary);
+      color: var(--text-light);
+      padding: var(--space-md);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top-left-radius: var(--radius-lg);
+      border-top-right-radius: var(--radius-lg);
+    }
+    
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      font-weight: 600;
+    }
+    
+    .header-title img {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      object-fit: cover;
+    }
+    
+    .header-actions {
+      display: flex;
+      gap: var(--space-sm);
+    }
+    
+    .header-button {
+      background: none;
+      border: none;
+      color: var(--gray-medium);
+      cursor: pointer;
+      font-size: 16px;
+      transition: color 0.2s ease;
+      padding: var(--space-xs);
+    }
+    
+    .header-button:hover {
+      color: var(--text-light);
+    }
+
+    /* Language selector styles */
+    .lang-selector {
+      display: flex;
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: var(--radius-md);
+      margin-right: var(--space-md);
+      overflow: hidden;
+    }
+    
+    .lang-button {
+      background: transparent;
+      border: none;
+      color: var(--gray-medium);
+      padding: 4px 8px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    
+    .lang-button.active {
+      background: rgba(255, 255, 255, 0.2);
       color: white;
-      padding: 16px;
-      font-weight: bold;
+    }
+    
+    .lang-button:hover:not(.active) {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--gray-light);
     }
 
     #chat {
       flex: 1;
-      padding: 16px;
+      padding: var(--space-md);
       overflow-y: auto;
-      background: #f9fafb;
+      background: var(--light-bg);
+      scroll-behavior: smooth;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
     }
-
-    .msg {
-      margin: 10px 0;
-      padding: 10px 15px;
-      border-radius: 12px;
+    
+    .msg-container {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
       max-width: 80%;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .user-container {
+      align-self: flex-end;
+    }
+    
+    .bot-container {
+      align-self: flex-start;
+    }
+    
+    .avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: white;
+    }
+    
+    .msg-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+    
+    .bot-avatar {
+      background: var(--primary);
+    }
+    
+    .user-avatar {
+      background: var(--secondary);
+      align-self: flex-end;
+    }
+    
+    .msg {
+      padding: var(--space-md);
+      border-radius: var(--radius-md);
       word-wrap: break-word;
       overflow-wrap: break-word;
       white-space: pre-wrap;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
 
     .user {
-      background: #38bdf8;
+      background: var(--primary);
       color: white;
-      align-self: flex-end;
-      margin-left: auto;
+      border-top-right-radius: 4px;
     }
 
     .bot {
-      background: #e2e8f0;
-      color: black;
-      align-self: flex-start;
-      margin-right: auto;
+      background: white;
+      color: var(--text-dark);
+      border-top-left-radius: 4px;
     }
 
     .timestamp {
-      font-size: 0.75em;
-      color: #6b7280;
-      margin-top: 4px;
+      font-size: 0.7rem;
+      color: var(--gray-medium);
       text-align: right;
+      margin-top: var(--space-xs);
+    }
+
+    .typing-indicator {
+      display: flex;
+      padding: var(--space-sm) var(--space-md);
+      background: white;
+      border-radius: var(--radius-md);
+      width: fit-content;
+      align-items: center;
+      column-gap: var(--space-xs);
+    }
+    
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--primary);
+      border-radius: 50%;
+      animation: typing-animation 1.4s infinite ease-in-out both;
+    }
+    
+    .typing-dot:nth-child(1) {
+      animation-delay: -0.32s;
+    }
+    
+    .typing-dot:nth-child(2) {
+      animation-delay: -0.16s;
+    }
+    
+    @keyframes typing-animation {
+      0%, 80%, 100% { transform: scale(0.6); }
+      40% { transform: scale(1); }
     }
 
     #form {
       display: flex;
-      padding: 10px;
-      background: #e5e7eb;
+      padding: var(--space-md);
+      background: white;
       align-items: flex-end;
+      border-top: 1px solid var(--gray-light);
+      position: relative;
     }
 
     #mensagem {
       flex: 1;
-      padding: 10px;
-      border-radius: 8px;
-      border: none;
-      margin-right: 10px;
+      padding: var(--space-md) var(--space-lg) var(--space-md) var(--space-md);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--gray-light);
+      margin-right: var(--space-sm);
       resize: none;
       font-family: inherit;
       font-size: 14px;
       overflow-y: auto;
-      max-height: 100px;
-      line-height: 1.4;
+      max-height: 120px;
+      line-height: 1.5;
+      transition: border 0.2s ease;
+    }
+    
+    #mensagem:focus {
+      outline: none;
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
 
-    button[type="submit"] {
-      background: #38bdf8;
+    #send-button {
+      background: var(--primary);
       color: white;
-      padding: 10px 15px;
+      width: 40px;
+      height: 40px;
       border: none;
-      border-radius: 8px;
+      border-radius: var(--radius-full);
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    
+    #send-button:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+    
+    #send-button:active {
+      transform: translateY(0);
+    }
+    
+    .chat-footer {
+      padding: var(--space-sm);
+      text-align: center;
+      font-size: 11px;
+      color: var(--gray-medium);
+      border-top: 1px solid var(--gray-light);
     }
   </style>
 </head>
 <body>
-  <button id="widget-button">💬</button>
+  <button id="widget-button"><i class="fas fa-comment"></i></button>
 
   <div id="chat-container">
-    <div id="chat-header">SofIA - Assistente Virtual</div>
+    <div id="chat-header">
+      <div class="header-title">
+        <img src="/api/placeholder/32/32" alt="SofIA Logo" />
+        <span>SofIA - Assistente Virtual</span>
+      </div>
+      <div class="header-actions">
+        <!-- Language selector -->
+        <div class="lang-selector">
+          <button class="lang-button active" data-lang="pt">PT</button>
+          <button class="lang-button" data-lang="en">EN</button>
+        </div>
+        <button class="header-button" id="minimize-btn"><i class="fas fa-minus"></i></button>
+      </div>
+    </div>
+    
     <div id="chat"></div>
+    
     <form id="form">
-      <textarea id="mensagem" placeholder="Digite sua mensagem..." rows="2"></textarea>
-      <button type="submit">Enviar</button>
+      <textarea id="mensagem" placeholder="Digite sua mensagem..." rows="1"></textarea>
+      <button type="submit" id="send-button"><i class="fas fa-paper-plane"></i></button>
     </form>
+    
+    <div class="chat-footer">
+      Powered by LusoTravels © 2025
+    </div>
   </div>
 
   <script>
@@ -131,6 +389,40 @@
     const input = document.getElementById('mensagem');
     const widgetButton = document.getElementById('widget-button');
     const chatContainer = document.getElementById('chat-container');
+    const minimizeBtn = document.getElementById('minimize-btn');
+    const langButtons = document.querySelectorAll('.lang-button');
+    
+    // Generate a unique conversation ID on page load
+    const conversationId = `conv_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    console.log("New conversation started with ID:", conversationId);
+
+    // Set default language to Portuguese
+    let userLanguage = 'pt';
+    
+    // Language selection
+    langButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        // Update active button
+        langButtons.forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+        
+        // Set language
+        userLanguage = button.getAttribute('data-lang');
+        console.log(`Language switched to: ${userLanguage}`);
+        
+        // Update placeholder text based on language
+        updatePlaceholder();
+      });
+    });
+    
+    // Update placeholder text based on selected language
+    function updatePlaceholder() {
+      if (userLanguage === 'pt') {
+        input.placeholder = "Digite sua mensagem...";
+      } else {
+        input.placeholder = "Type your message...";
+      }
+    }
 
     const historico = [
       {
@@ -147,6 +439,23 @@
     };
 
     const adicionarMsg = (texto, classe) => {
+      const container = document.createElement('div');
+      container.className = `msg-container ${classe === 'user' ? 'user-container' : 'bot-container'}`;
+      
+      // Header with avatar
+      const header = document.createElement('div');
+      header.className = 'msg-header';
+      
+      if (classe !== 'user') {
+        const avatar = document.createElement('div');
+        avatar.className = 'avatar bot-avatar';
+        avatar.innerHTML = '<i class="fas fa-robot"></i>';
+        header.appendChild(avatar);
+      }
+      
+      container.appendChild(header);
+      
+      // Message bubble
       const div = document.createElement('div');
       div.className = `msg ${classe}`;
 
@@ -157,25 +466,93 @@
         conteudo.textContent = texto;
       }
 
+      div.appendChild(conteudo);
+      container.appendChild(div);
+      
+      // Timestamp
       const horario = document.createElement('div');
       horario.className = 'timestamp';
       horario.textContent = gerarHorario();
-
-      div.appendChild(conteudo);
-      div.appendChild(horario);
-      chat.appendChild(div);
+      container.appendChild(horario);
+      
+      chat.appendChild(container);
       chat.scrollTop = chat.scrollHeight;
+    };
+    
+    const adicionarTypingIndicator = () => {
+      const container = document.createElement('div');
+      container.className = 'msg-container bot-container';
+      container.id = 'typing-container';
+      
+      const header = document.createElement('div');
+      header.className = 'msg-header';
+      
+      const avatar = document.createElement('div');
+      avatar.className = 'avatar bot-avatar';
+      avatar.innerHTML = '<i class="fas fa-robot"></i>';
+      header.appendChild(avatar);
+      
+      container.appendChild(header);
+      
+      const indicator = document.createElement('div');
+      indicator.className = 'typing-indicator';
+      
+      for (let i = 0; i < 3; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'typing-dot';
+        indicator.appendChild(dot);
+      }
+      
+      container.appendChild(indicator);
+      chat.appendChild(container);
+      chat.scrollTop = chat.scrollHeight;
+      
+      return container;
     };
 
     widgetButton.addEventListener('click', () => {
-      chatContainer.style.display = chatContainer.style.display === 'flex' ? 'none' : 'flex';
+      chatContainer.classList.toggle('active');
+      widgetButton.classList.toggle('open');
+    });
+    
+    minimizeBtn.addEventListener('click', () => {
+      chatContainer.classList.remove('active');
+      widgetButton.classList.remove('open');
     });
 
+    // Update first message based on selected language
+    function updateFirstMessage() {
+      // Clear chat
+      chat.innerHTML = '';
+      
+      // Add welcome message in correct language
+      if (userLanguage === 'pt') {
+        adicionarMsg('Olá! 👋 Eu sou a <strong>SofIA</strong>, assistente virtual da <strong>LusoTravels</strong>. Como posso te ajudar hoje?', 'bot');
+      } else {
+        adicionarMsg('Hello! 👋 I\'m <strong>SofIA</strong>, the virtual assistant for <strong>LusoTravels</strong>. How can I help you today?', 'bot');
+      }
+      
+      // Reset conversation history
+      historico.length = 0;
+      historico.push({
+        role: 'assistant',
+        content: userLanguage === 'pt' 
+          ? 'Olá! 👋 Eu sou a SofIA, assistente virtual da LusoTravels. Como posso te ajudar hoje?' 
+          : 'Hello! 👋 I\'m SofIA, the virtual assistant for LusoTravels. How can I help you today?'
+      });
+    }
+    
+    // Listen for language changes to update welcome message
+    langButtons.forEach(button => {
+      button.addEventListener('click', updateFirstMessage);
+    });
+
+    // Initial welcome message
     adicionarMsg('Olá! 👋 Eu sou a <strong>SofIA</strong>, assistente virtual da <strong>LusoTravels</strong>. Como posso te ajudar hoje?', 'bot');
 
     input.addEventListener('input', () => {
       input.style.height = 'auto';
-      input.style.height = input.scrollHeight + 'px';
+      input.style.height = Math.min(input.scrollHeight, 120) + 'px';
     });
 
     input.addEventListener('keydown', (e) => {
@@ -184,7 +561,6 @@
         form.dispatchEvent(new Event('submit'));
       }
     });
-
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -196,27 +572,27 @@
       input.value = '';
       input.style.height = 'auto';
 
-      const typing = document.createElement('div');
-      typing.className = 'msg bot';
-      typing.textContent = 'SofIA está digitando...';
-      chat.appendChild(typing);
-      chat.scrollTop = chat.scrollHeight;
+      const typingIndicator = adicionarTypingIndicator();
 
       try {
         const resposta = await fetch('https://chatbot-backend-1030484642852.us-central1.run.app/api/gpt/gpt-responder', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ historico }),
+          body: JSON.stringify({ 
+            historico,
+            conversationId,
+            initialLanguage: userLanguage  // Send explicit language preference
+          }),
         });
         const json = await resposta.json();
-        chat.removeChild(typing);
+        chat.removeChild(typingIndicator);
 
         const respostaTexto = json.resposta || '[Erro ao responder]';
-adicionarMsg(respostaTexto, 'bot');
+        adicionarMsg(respostaTexto, 'bot');
 
         historico.push({ role: 'assistant', content: respostaTexto });
       } catch (err) {
-        chat.removeChild(typing);
+        chat.removeChild(typingIndicator);
         adicionarMsg('[Erro na conexão com o servidor]', 'bot');
       }
     });
